@@ -1,0 +1,33 @@
+# JEAB – Fake VU Sensor + VU Button‑Card
+# --------------------------------------
+# ไฟล์นี้รวม:
+#   1) Fake VU Level Sensor (เวอร์ชันที่ Jeab ใช้อยู่)
+#   2) VU Button‑Card พร้อม background 8 ระดับ + Aurora Glow
+#
+# หมายเหตุ:
+# - ควรใช้คู่กับ media_player ตัวหลักของ Jeab เช่น:
+#     media_player.living_room_speaker_music
+# - Logic นี้เสถียร และเข้ากับ Liquid Glass ได้ (ถ้าแยก card)
+# - หากต้องการแก้สี/เรนเดอร์ ให้ปรับในส่วน styles.card.background
+
+
+# -------------------------------------------------------
+# 1) Sensor: Fake VU Level (Update ทุก 1 วินาที)
+# -------------------------------------------------------
+template:
+  - trigger:
+      - platform: time_pattern
+        seconds: "/1"
+    sensor:
+      - name: Fake VU Level
+        unique_id: fake_vu_level
+        unit_of_measurement: "%"
+        state: >
+          {% set p = states('media_player.living_room_speaker_music') %}
+          {% set vol = state_attr('media_player.living_room_speaker_music', 'volume_level') | float(0) %}
+          {% if p == 'playing' %}
+            {{ ((40 + (vol * 60)) + (range(-10, 10) | random)) | clamp(0, 100) }}
+          {% else %}
+            0
+          {% endif %}
+
