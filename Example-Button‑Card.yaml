@@ -1,0 +1,93 @@
+# -------------------------------------------------------
+# 2) Button‑Card: VU Meter (8 สี + Aurora Glow)
+# -------------------------------------------------------
+# ใช้ร่วมกับ:
+#   entity: sensor.fake_vu_level
+#
+# NOTE: แนะนำให้แยก card ออกจาก Liquid Glass
+#       เพื่อไม่ให้ overlay ของ theme ไปกลบสี/เอฟเฟกต์
+#
+# ตัวอย่าง Lovelace YAML:
+#
+type: custom:button-card
+entity: sensor.fake_vu_level
+name: VU
+icon: mdi:waveform
+show_state: true
+show_units: true
+tap_action:
+  action: navigate
+  navigation_path: /lovelace-main/vu
+color_type: card
+styles:
+  card:
+    - border-radius: 18px
+    - padding: 10px 12px
+    - position: relative
+    - overflow: hidden
+    - background: >
+        [[[ 
+          const v = Number(entity.state) || 0;
+          if (v <= 0)  return 'linear-gradient(135deg,#111827,#111827)';
+          if (v <= 15) return 'linear-gradient(135deg,#064E3B,#16A34A)';
+          if (v <= 30) return 'linear-gradient(135deg,#047857,#22C55E)';
+          if (v <= 45) return 'linear-gradient(135deg,#15803D,#A3E635)';
+          if (v <= 60) return 'linear-gradient(135deg,#854D0E,#FACC15)';
+          if (v <= 75) return 'linear-gradient(135deg,#9A3412,#FB923C)';
+          if (v <= 90) return 'linear-gradient(135deg,#B91C1C,#F97316)';
+          return 'linear-gradient(135deg,#7F1D1D,#EF4444)';
+        ]]]
+    - color: '#FFFFFF'
+    - box-shadow: >
+        [[[ 
+          const v = Number(entity.state) || 0;
+          const blur = 6 + v * 0.25;
+          return `0 0 ${blur}px rgba(0,0,0,0.9)`;
+        ]]]
+    - transition: all 0.2s ease-out
+  name:
+    - font-size: 12px
+    - text-transform: uppercase
+    - letter-spacing: 0.08em
+    - color: 'rgba(255,255,255,0.75)'
+  state:
+    - font-size: 16px
+    - font-weight: 600
+    - color: 'rgba(255,255,255,0.95)'
+  icon:
+    - width: 30px
+    - height: 30px
+    - color: 'white'
+style: |
+  :host {
+    --vu-color: [[[
+      const v = Number(entity.state) || 0;
+      if (v <= 0)  return '#4B5563';
+      if (v <= 15) return '#16A34A';
+      if (v <= 30) return '#22C55E';
+      if (v <= 45) return '#A3E635';
+      if (v <= 60) return '#FACC15';
+      if (v <= 75) return '#FB923C';
+      if (v <= 90) return '#F97316';
+      return '#EF4444';
+    ]]];
+  }
+  ha-card {
+    position: relative;
+    isolation: isolate;
+  }
+  ha-card::before {
+    content: "";
+    position: absolute;
+    inset: -25%;
+    background:
+      radial-gradient(circle at 0% 0%,    color-mix(in srgb, var(--vu-color) 60%, transparent) 0,  transparent 55%),
+      radial-gradient(circle at 100% 0%,  color-mix(in srgb, var(--vu-color) 40%, transparent) 0,  transparent 55%),
+      radial-gradient(circle at 50% 100%, color-mix(in srgb, var(--vu-color) 50%, transparent) 0,  transparent 60%);
+    opacity: 0.25;
+    filter: blur(28px);
+    transform: scale(1.1);
+    pointer-events: none;
+    z-index: -1;
+    transition: opacity 0.3s ease-out, filter 0.3s ease-out;
+  }
